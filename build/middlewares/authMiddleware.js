@@ -19,4 +19,16 @@ export default {
         }
         next();
     },
+    signInVerify(req, res, next) {
+        const signInSquema = joi.object({
+            email: joi.string().email().required(),
+            password: joi.string().required(),
+        });
+        const { error } = signInSquema.validate(req.body);
+        if (error) {
+            res.status(422).send(error.details);
+            return;
+        }
+        next();
+    },
 };
