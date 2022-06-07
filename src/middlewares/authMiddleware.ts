@@ -1,7 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
 import joi from 'joi';
-import db from '../db.js';
-import { ISignUp, ISignIn } from '../interfaces/signUpInterface.js';
+import { NextFunction, Request, Response } from 'express';
+import { ISignUp } from '../interfaces/signUpInterface';
 
 export default {
   signUpVerify(req: Request, res: Response, next: NextFunction) {
@@ -9,6 +8,7 @@ export default {
     if (signUp?.password != signUp?.confirmPassword) {
       res.status(422).send('"password" and "confirm password" is different');
     }
+
     const signUpSquema = joi.object({
       name: joi.string().required(),
       email: joi.string().email().required(),
@@ -16,7 +16,6 @@ export default {
       confirmPassword: joi.string().required(),
     });
     const { error } = signUpSquema.validate(req.body);
-    console.log(error);
 
     if (error) {
       res.status(422).send(error.details);
@@ -25,6 +24,7 @@ export default {
     next();
   },
   signInVerify(req: Request, res: Response, next: NextFunction) {
+    
     const signInSquema = joi.object({
       email: joi.string().email().required(),
       password: joi.string().required(),

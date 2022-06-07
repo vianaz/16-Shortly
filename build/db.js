@@ -1,5 +1,10 @@
-import pg from 'pg';
-const { Pool } = pg;
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const pg_1 = __importDefault(require("pg"));
+const { Pool } = pg_1.default;
 const user = 'postgres';
 const password = '197320';
 const host = 'localhost';
@@ -12,4 +17,4 @@ const db = new Pool({
     port,
     database,
 });
-export default db;
+exports.default = db;
