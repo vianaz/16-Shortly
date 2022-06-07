@@ -1,6 +1,6 @@
 import joi from 'joi';
 import { NextFunction, Request, Response } from 'express';
-import { ISignUp } from '../interfaces/signUpInterface';
+import { ISignUp } from '../interfaces/Interfaces';
 
 export default {
   signUpVerify(req: Request, res: Response, next: NextFunction) {
@@ -24,7 +24,6 @@ export default {
     next();
   },
   signInVerify(req: Request, res: Response, next: NextFunction) {
-    
     const signInSquema = joi.object({
       email: joi.string().email().required(),
       password: joi.string().required(),

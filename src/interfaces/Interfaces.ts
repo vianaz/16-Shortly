@@ -8,3 +8,7 @@ export interface ISignIn {
   email: string;
   password: string;
 }
+export interface IUrls {
+  url?: string;
+  shortUrl?: string;
+}
