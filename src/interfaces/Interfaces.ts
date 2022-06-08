@@ -9,6 +9,7 @@ export interface ISignIn {
   password: string;
 }
 export interface IUrls {
+  id?: number;
   url?: string;
   shortUrl?: string;
 }

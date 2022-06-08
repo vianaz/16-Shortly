@@ -8,17 +8,18 @@ export default {
     const url: IUrls = req.body;
     try {
       const short = nanoid();
-      const shortUrl = `${url.url}/${short}`;
 
       await db.query(
-        `INSERT INTO urls ("userId","url", "short", "shortUrl") VALUES ($1, $2, $3, $4)`,
-        [req.headers.userId, url.url, short, shortUrl],
+        `INSERT INTO urls ("userId","url", "short") VALUES ($1, $2, $3) RETURNING id`,
+        [req.headers.userId, url.url, short],
       );
-      res.status(201).send({ shortUrl });
+
+      res.status(201).send({ short });
     } catch (error) {
       res.status(422).send(error);
     }
   },
+
   async getShorten(req: Request, res: Response) {
     const { id } = req.params;
     try {
@@ -38,10 +39,52 @@ export default {
       return;
     }
   },
-  getRedirect(req: Request, res: Response) {
-    res.status(200).send('get redirect');
+
+  async getRedirect(req: Request, res: Response) {
+    const { shortUrl } = req.params;
+    try {
+      const shortUrlQuery = await db.query(
+        `SELECT * FROM urls WHERE urls."short" = $1`,
+        [shortUrl],
+      );
+
+      const sumViews: number = shortUrlQuery.rows[0].views + 1;
+
+      if (!shortUrlQuery.rows[0]) {
+        res.sendStatus(404);
+        return;
+      }
+      await db.query(`UPDATE urls SET "views" = $1 WHERE "short" = $2`, [
+        sumViews,
+        shortUrl,
+      ]);
+
+      res.redirect(`${shortUrlQuery.rows[0].url}`);
+      return;
+    } catch (error) {
+      res.status(400).send(error);
+      return;
+    }
   },
-  deleteShorten(req: Request, res: Response) {
-    res.status(200).send('delete shorten');
+
+  async deleteShorten(req: Request, res: Response) {
+    const { id } = req.params;
+    try {
+      const deleteQuery = await db.query(`SELECT * FROM urls WHERE id = $1`, [
+        id,
+      ]);
+
+      if (!deleteQuery.rows[0]) {
+        res.sendStatus(404);
+        return;
+      }
+
+      await db.query(`DELETE FROM urls WHERE "id" = $1`, [id]);
+
+      res.sendStatus(204);
+      return;
+    } catch (error) {
+      res.status(404).send(error);
+    }
   },
 };

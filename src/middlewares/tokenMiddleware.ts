@@ -13,7 +13,7 @@ export default {
       res.sendStatus(401);
       return;
     }
-    req.headers.userId = tokenQuery.rows[0].id;
+    req.headers.userId = tokenQuery.rows[0].userId;
     next();
   },
 };

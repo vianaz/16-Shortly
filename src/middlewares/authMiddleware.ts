@@ -5,7 +5,7 @@ import { ISignUp } from '../interfaces/Interfaces';
 export default {
   signUpVerify(req: Request, res: Response, next: NextFunction) {
     const signUp: ISignUp = req.body;
-    if (signUp?.password != signUp?.confirmPassword) {
+    if (signUp?.password !== signUp?.confirmPassword) {
       res.status(422).send('"password" and "confirm password" is different');
     }
 
