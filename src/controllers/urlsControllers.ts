@@ -9,7 +9,6 @@ export default {
     try {
       const short = nanoid();
       const shortUrl = `${url.url}/${short}`;
-      console.log(req.headers.userId, url.url, short, shortUrl);
 
       await db.query(
         `INSERT INTO urls ("userId","url", "short", "shortUrl") VALUES ($1, $2, $3, $4)`,
@@ -20,8 +19,24 @@ export default {
       res.status(422).send(error);
     }
   },
-  getShorten(req: Request, res: Response) {
-    res.status(200).send('get shorten');
+  async getShorten(req: Request, res: Response) {
+    const { id } = req.params;
+    try {
+      const shortUrlQuery = await db.query(
+        `SELECT urls."id", urls."short" AS "shortUrl", urls."url" FROM urls WHERE urls."id" = $1`,
+        [id],
+      );
+      const shortUrlData: IUrls = shortUrlQuery.rows[0];
+      if (!shortUrlData) {
+        res.sendStatus(404);
+        return;
+      }
+      res.status(200).send(shortUrlData);
+      return;
+    } catch (error) {
+      res.status(400).send(error);
+      return;
+    }
   },
   getRedirect(req: Request, res: Response) {
     res.status(200).send('get redirect');
