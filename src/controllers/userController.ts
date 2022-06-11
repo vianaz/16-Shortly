@@ -5,8 +5,10 @@ export default {
   async getUser(req: Request, res: Response) {
     const tokenUserId = req.headers.userId;
     const userId = req.params.id;
-    if (tokenUserId === userId) {
+    if (tokenUserId == userId) {
       try {
+        console.log('passei aqui');
+        
         const userQuery = await allServices.getUserService(req);
         if (userQuery) {
           res.status(200).send(userQuery);

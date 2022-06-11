@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import db from '../db';
-import allServices from '../service/allServices';
+import { Request, Response } from "express";
+import db from "../db";
+import allServices from "../service/allServices";
 
 export default {
   async postShorten(req: Request, res: Response) {
@@ -37,7 +37,7 @@ export default {
           sumViews,
           shortUrlQuery.short,
         ]);
-        res.redirect(`${shortUrlQuery.rows[0].url}`);
+        res.redirect(shortUrlQuery.url);
         return;
       }
       res.sendStatus(404);
@@ -49,17 +49,22 @@ export default {
   },
 
   async deleteShorten(req: Request, res: Response) {
+    const tokenUserId = req.headers.userId;
     try {
       const deleteQuery = await allServices.deleteShortenService(req);
       if (deleteQuery) {
-        db.query(`DELETE FROM urls WHERE "id" = $1`, [deleteQuery.id]);
-        res.sendStatus(204);
+        if (deleteQuery.userId === tokenUserId) {
+          db.query(`DELETE FROM urls WHERE "id" = $1`, [deleteQuery.id]);
+          res.sendStatus(204);
+          return;
+        }
+        res.sendStatus(401);
         return;
       }
       res.sendStatus(404);
       return;
     } catch (error) {
-      res.status(404).send(error);
+      res.status(400).send(error);
     }
   },
 };
