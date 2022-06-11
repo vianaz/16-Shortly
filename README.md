@@ -1,7 +1,8 @@
 <div align="center">
-  
-    <img src="https://free-url-shortener.rb.gy/url-shortener.png" alt="Logo" width="200">
-  
+  <a>
+    <img src="https://github.com/vianaz/16-Shortly/blob/main/imgs/twemoji_shorts.png" alt="Logo" width="100">
+  </a>
+    
 [![wakatime](https://wakatime.com/badge/user/81a93aa8-8a08-415d-9a4d-3d47638f0e82/project/a2d5130f-fcd8-4b37-af99-f8f1768afff1.svg)](https://wakatime.com/badge/user/81a93aa8-8a08-415d-9a4d-3d47638f0e82/project/a2d5130f-fcd8-4b37-af99-f8f1768afff1)
   
   <h3 align="center">
@@ -20,14 +21,6 @@
   </div>
   
 </div>
-
-## What I Learned
-  
-  - This was my first go at NestJS
-  - Applied fundamental NestJS concepts, like modules, controllers, services, guards and pipes
-  - Implemented [Passport.js](https://www.passportjs.org/) `local` and `jwt` auth strategies alongside NestJS guards
-  - Studied and applied patterns like **singleton**, **dependency injection** an **IOC**
-  - New Postgres concepts like `json_agg` and `json_build_object`
    
 ## Routes
 
