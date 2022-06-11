@@ -1,17 +1,15 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const uuid_1 = require("uuid");
-const db_1 = __importDefault(require("../db"));
-class AuthController {
-    static async signIn(req, res) {
-        const signIn = req.body;
+import { v4 as uuid } from "uuid";
+import bcrypt from "bcrypt";
+import db from "../db";
+import allServices from "../service/allServices";
+export default {
+    async signIn(req, res) {
         try {
-            const queryUser = await db_1.default.query(`SELECT * FROM users WHERE users."email" = $1 AND users."password" = $2`, [signIn?.email, signIn?.password]);
-            if (queryUser.rows[0]) {
-                const token = (0, uuid_1.v4)();
+            const userQuery = (await allServices.signInService(req)).rows[0];
+            const passwordIsTrue = bcrypt.compareSync(req.body.password, userQuery.password);
+            if (userQuery && passwordIsTrue) {
+                const token = uuid();
+                await db.query(`INSERT INTO sessions ("userId","token") VALUES ($1, $2)`, [userQuery.id, token]);
                 res.status(200).send({ token });
                 return;
             }
@@ -20,12 +18,17 @@ class AuthController {
             res.sendStatus(401);
             return;
         }
-    }
-    static async signUp(req, res) {
-        const signUp = req.body;
-        await db_1.default.query(`INSERT INTO users (users."email", users."password") VALUES ($1, $2)`, [signUp.email, signUp.password]);
-        res.sendStatus(201);
-        console.log('sign-up');
-    }
-}
-exports.default = AuthController;
+        res.sendStatus(401);
+        return;
+    },
+    async signUp(req, res) {
+        try {
+            await allServices.signUpService(req);
+            res.sendStatus(201);
+        }
+        catch (error) {
+            res.sendStatus(400);
+            return;
+        }
+    },
+};

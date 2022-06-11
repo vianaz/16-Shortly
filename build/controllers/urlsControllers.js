@@ -1,0 +1,67 @@
+import db from "../db";
+import allServices from "../service/allServices";
+export default {
+    async postShorten(req, res) {
+        try {
+            const shortUrl = await allServices.postShortenService(req);
+            res.status(201).send({ shortUrl });
+        }
+        catch (error) {
+            res.status(422).send(error);
+        }
+    },
+    async getShorten(req, res) {
+        try {
+            const shortUrl = await allServices.getShortenService(req);
+            if (!shortUrl) {
+                res.sendStatus(404);
+                return;
+            }
+            res.status(200).send(shortUrl);
+            return;
+        }
+        catch (error) {
+            res.status(400).send(error);
+            return;
+        }
+    },
+    async getRedirect(req, res) {
+        try {
+            const { sumViews, shortUrlQuery } = await allServices.getRedirectService(req);
+            if (shortUrlQuery) {
+                await db.query(`UPDATE urls SET "views" = $1 WHERE "short" = $2`, [
+                    sumViews,
+                    shortUrlQuery.short,
+                ]);
+                res.redirect(shortUrlQuery.url);
+                return;
+            }
+            res.sendStatus(404);
+            return;
+        }
+        catch (error) {
+            res.status(400).send(error);
+            return;
+        }
+    },
+    async deleteShorten(req, res) {
+        const tokenUserId = req.headers.userId;
+        try {
+            const deleteQuery = await allServices.deleteShortenService(req);
+            if (deleteQuery) {
+                if (deleteQuery.userId === tokenUserId) {
+                    db.query(`DELETE FROM urls WHERE "id" = $1`, [deleteQuery.id]);
+                    res.sendStatus(204);
+                    return;
+                }
+                res.sendStatus(401);
+                return;
+            }
+            res.sendStatus(404);
+            return;
+        }
+        catch (error) {
+            res.status(400).send(error);
+        }
+    },
+};
