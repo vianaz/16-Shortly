@@ -1,41 +1,36 @@
 import { Request, Response } from 'express';
-import { ISignIn, ISignUp } from '../interfaces/Interfaces';
 import { v4 as uuid } from 'uuid';
 
 import db from '../db';
+import allServices from '../service/allServices';
 
-class AuthController {
-  static async signIn(req: Request, res: Response): Promise<void> {
-    const signIn: ISignIn = req.body;
+export default {
+  async signIn(req: Request, res: Response): Promise<void> {
     try {
-      const queryUser = await db.query(
-        `SELECT * FROM users WHERE users."email" = $1 AND users."password" = $2`,
-        [signIn?.email, signIn?.password],
-      );
-      const { id } = queryUser.rows[0];
-      if (id) {
+      const userQuery = (await allServices.signInService(req)).rows[0];
+      if (userQuery) {
         const token: string = uuid();
         await db.query(
           `INSERT INTO sessions ("userId","token") VALUES ($1, $2)`,
-          [id, token],
+          [userQuery.id, token],
         );
         res.status(200).send({ token });
         return;
       }
-      res.sendStatus(401);
     } catch (error) {
       res.sendStatus(401);
       return;
     }
-  }
-  static async signUp(req: Request, res: Response): Promise<void> {
-    const signUp: ISignUp = req.body;
-    await db.query(`INSERT INTO users ("email", "password") VALUES ($1, $2)`, [
-      signUp.email,
-      signUp.password,
-    ]);
-    res.sendStatus(201);
-  }
-}
-
-export default AuthController;
+    res.sendStatus(401);
+    return;
+  },
+  async signUp(req: Request, res: Response): Promise<void> {
+    try {
+      await allServices.signUpService(req);
+      res.sendStatus(201);
+    } catch (error) {
+      res.sendStatus(400);
+      return;
+    }
+  },
+};

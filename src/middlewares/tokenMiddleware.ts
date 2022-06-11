@@ -1,14 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import db from '../db';
+import allServices from '../service/allServices';
+
 export default {
   async tokenVerify(req: Request, res: Response, next: NextFunction) {
-    let authorization: string | undefined = req.headers.authorization;
-    authorization = authorization?.replace('Bearer ', '');
-    const tokenQuery = await db.query(
-      `SELECT * FROM sessions WHERE sessions."token" = $1`,
-      [authorization],
-    );
-
+    const tokenQuery = await allServices.TokenService(req);
     if (!tokenQuery.rows[0]) {
       res.sendStatus(401);
       return;
