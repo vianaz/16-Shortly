@@ -2,6 +2,7 @@ import { Request } from "express";
 import { nanoid } from "nanoid";
 import db from "../db";
 import { ISignIn, ISignUp, IUrls } from "../interfaces/Interfaces";
+import bcrypt from "bcrypt";
 
 export default {
   //Middlewares Services
@@ -18,16 +19,17 @@ export default {
   async signInService(req: Request) {
     const signIn: ISignIn = req.body;
     return await db.query(
-      `SELECT * FROM users WHERE users."email" = $1 AND users."password" = $2`,
-      [signIn.email, signIn.password],
+      `SELECT * FROM users WHERE users."email" = $1`,
+      [signIn.email],
     );
   },
   async signUpService(req: Request) {
     const signUp: ISignUp = req.body;
-    await db.query(`INSERT INTO users ("email", "password") VALUES ($1, $2)`, [
-      signUp.email,
-      signUp.password,
-    ]);
+    const passwordCrypt = bcrypt.hashSync(signUp.password, 10);
+    await db.query(
+      `INSERT INTO users ("name", "email", "password") VALUES ($1, $2, $3)`,
+      [signUp.name, signUp.email, passwordCrypt],
+    );
   },
 
   // Urls Services
@@ -67,8 +69,8 @@ export default {
   async getUserService(req: Request) {
     const { id } = req.params;
     const userInfos = await db.query(
-      `SELECT users."id", users."email", SUM(urls."views") as "visitCount" FROM users 
-    JOIN urls
+      `SELECT users."id", users."name", SUM(urls."views") as "visitCount" FROM users 
+    LEFT JOIN urls
     ON urls."userId" = users."id"
     WHERE users."id" = $1
     GROUP BY users."id"`,
@@ -81,6 +83,19 @@ export default {
     WHERE users."id" = $1`,
       [id],
     );
+    console.log(userInfos.rows);
+
     return { ...userInfos.rows[0], shortenedUrls: shortUrlsUser.rows };
+  },
+  async getRankingService() {
+    const ranking =
+      await db.query(`SELECT users."id", users."email", COUNT(urls."short") AS "linkCount", SUM(urls."views") AS "visitCount" 
+    FROM users
+    JOIN urls
+    ON users."id" = urls."userId"
+    GROUP BY users."id"
+    ORDER BY "visitCount" DESC
+    LIMIT 10`);
+    return ranking.rows;
   },
 };

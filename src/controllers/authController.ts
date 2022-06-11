@@ -1,14 +1,19 @@
-import { Request, Response } from 'express';
-import { v4 as uuid } from 'uuid';
+import { Request, Response } from "express";
+import { v4 as uuid } from "uuid";
+import bcrypt from "bcrypt";
 
-import db from '../db';
-import allServices from '../service/allServices';
+import db from "../db";
+import allServices from "../service/allServices";
 
 export default {
   async signIn(req: Request, res: Response): Promise<void> {
     try {
       const userQuery = (await allServices.signInService(req)).rows[0];
-      if (userQuery) {
+      const passwordIsTrue = bcrypt.compareSync(
+        req.body.password,
+        userQuery.password,
+      );
+      if (userQuery && passwordIsTrue) {
         const token: string = uuid();
         await db.query(
           `INSERT INTO sessions ("userId","token") VALUES ($1, $2)`,

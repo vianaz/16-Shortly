@@ -7,8 +7,6 @@ export default {
     const userId = req.params.id;
     if (tokenUserId == userId) {
       try {
-        console.log('passei aqui');
-        
         const userQuery = await allServices.getUserService(req);
         if (userQuery) {
           res.status(200).send(userQuery);
@@ -24,5 +22,14 @@ export default {
     res.sendStatus(401);
     return;
   },
-  async getUserRanking(req: Request, res: Response) {},
+  async getUserRanking(req: Request, res: Response) {
+    try {
+      const usersRanking = await allServices.getRankingService();
+      res.status(200).send(usersRanking);
+      return;
+    } catch (error) {
+      res.status(400).send(error);
+      return;
+    }
+  },
 };

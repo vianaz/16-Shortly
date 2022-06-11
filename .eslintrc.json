@@ -13,6 +13,6 @@
   "rules": {
     "eqeqeq": ["error", "always"],
     "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 0 }],
-    "no-console": "error"
+    "no-console": "warn"
   }
 }

@@ -8,6 +8,6 @@ userRouter.get(
   tokenMiddleware.tokenVerify,
   userController.getUser,
 );
-userRouter.get("/ranking");
+userRouter.get("/ranking", userController.getUserRanking);
 
 export default userRouter;
