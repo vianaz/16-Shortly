@@ -13,3 +13,9 @@ export interface IUrls {
   url?: string;
   shortUrl?: string;
 }
+export interface IConfigDB {
+  connectionString: string;
+  ssl?: {
+    rejectUnauthorized: boolean;
+  };
+}

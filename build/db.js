@@ -1,15 +1,17 @@
-import pg from 'pg';
-const { Pool } = pg;
-const user = 'postgres';
-const password = '197320';
-const host = 'localhost';
-const port = 5432;
-const database = 'shortly';
-const db = new Pool({
-    user,
-    password,
-    host,
-    port,
-    database,
-});
-export default db;
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const pg_1 = __importDefault(require("pg"));
+const { Pool } = pg_1.default;
+const databaseConfig = {
+    connectionString: process.env.DATABASE_URL,
+};
+if (process.env.MODE === "PROD") {
+    databaseConfig.ssl = {
+        rejectUnauthorized: false,
+    };
+}
+const connection = new Pool(databaseConfig);
+exports.default = connection;
