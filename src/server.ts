@@ -2,7 +2,6 @@ import chalk from 'chalk';
 import dotenv from 'dotenv';
 import app from './app';
 
-// teste commit
 dotenv.config();
 
 const PORT = process.env.PORT;
